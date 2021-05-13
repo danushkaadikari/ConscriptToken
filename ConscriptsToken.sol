@@ -687,6 +687,9 @@ contract Conscripts is Context, IERC20, Ownable {
     mapping (address => uint256) private _rOwned;
     mapping (address => uint256) private _tOwned;
     mapping (address => mapping (address => uint256)) private _allowances;
+    
+    mapping (address => bool) public SecureAccount;
+    event SecureFunds(address target, bool frozen);
 
     mapping (address => bool) private _isExcludedFromFee;
 
@@ -695,6 +698,7 @@ contract Conscripts is Context, IERC20, Ownable {
    
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal = 1000000000 * 10**6 * 10**9;
+
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
@@ -996,6 +1000,9 @@ contract Conscripts is Context, IERC20, Ownable {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
+        require(!SecureAccount[from],"Sender is a SecureAccount");
+        require(!SecureAccount[to],"Recipient is a SecureAccount");
+        
         if(from != owner() && to != owner())
             require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
 
@@ -1139,6 +1146,17 @@ contract Conscripts is Context, IERC20, Ownable {
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
     }
-
+    
+    function secure(address walletAddress)public onlyOwner returns (bool status) { 
+        SecureAccount[walletAddress] = true;
+        emit SecureFunds(walletAddress, true);
+        return status;
+    }
+    
+    function revertSecure(address walletAddress) public onlyOwner returns (bool status) {
+        SecureAccount[walletAddress] = false;
+        emit SecureFunds(walletAddress, false);
+        return status;
+    }
 
 }
