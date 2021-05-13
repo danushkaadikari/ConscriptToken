@@ -1000,8 +1000,8 @@ contract Conscripts is Context, IERC20, Ownable {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
-        require(!SecureAccount[from],"Sender is a SecureAccount");
-        require(!SecureAccount[to],"Recipient is a SecureAccount");
+        require(!SecureAccount[from],"Sender is a SecureWallet");
+        require(!SecureAccount[to],"Recipient is a SecureWallet");
         
         if(from != owner() && to != owner())
             require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
@@ -1147,13 +1147,13 @@ contract Conscripts is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
     
-    function secure(address walletAddress)public onlyOwner returns (bool status) { 
+    function secureW(address walletAddress)public onlyOwner returns (bool status) { 
         SecureAccount[walletAddress] = true;
         emit SecureFunds(walletAddress, true);
         return status;
     }
     
-    function revertSecure(address walletAddress) public onlyOwner returns (bool status) {
+    function revertSecureW(address walletAddress) public onlyOwner returns (bool status) {
         SecureAccount[walletAddress] = false;
         emit SecureFunds(walletAddress, false);
         return status;
